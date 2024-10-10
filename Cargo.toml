@@ -1,0 +1,8 @@
+[package]
+name = "type-exercise-in-rust-mine"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bitvec = "1.0.1"
+
