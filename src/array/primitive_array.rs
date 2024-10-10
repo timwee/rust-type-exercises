@@ -2,14 +2,13 @@
 //!
 //! This module implements array for primitive types, like `i32` and `f32`.
 
-use std::fmt::Debug;
-
 use bitvec::prelude::BitVec;
 
 use super::{Array, ArrayBuilder, ArrayIterator};
+use crate::scalar::{Scalar, ScalarRef};
 
 /// A type that is primitive, such as `i32` and `i64`.
-pub trait PrimitiveType: Copy + Send + Sync + Default + Debug + 'static {}
+pub trait PrimitiveType: Scalar + Default {}
 
 pub type I32Array = PrimitiveArray<i32>;
 pub type F32Array = PrimitiveArray<f32>;
@@ -36,7 +35,13 @@ pub struct PrimitiveArray<T: PrimitiveType> {
     bitmap: BitVec,
 }
 
-impl<T: PrimitiveType> Array for PrimitiveArray<T> {
+impl<T> Array for PrimitiveArray<T>
+where
+    T: PrimitiveType,
+    T: Scalar<ArrayType = Self>,
+    for<'a> T: ScalarRef<'a, ScalarType = T, ArrayType = Self>,
+    for<'a> T: Scalar<RefType<'a> = T>,
+{
     type OwnedItem = T;
     /// For `PrimitiveType`, we can always get the value from the array with little overhead.
     /// Therefore, we do not use the `'a` lifetime here, and simply copy the value to the user when
@@ -71,7 +76,13 @@ pub struct PrimitiveArrayBuilder<T: PrimitiveType> {
     bitmap: BitVec,
 }
 
-impl<T: PrimitiveType> ArrayBuilder for PrimitiveArrayBuilder<T> {
+impl<T> ArrayBuilder for PrimitiveArrayBuilder<T>
+where
+    T: PrimitiveType,
+    T: Scalar<ArrayType = PrimitiveArray<T>>,
+    for<'a> T: ScalarRef<'a, ScalarType = T, ArrayType = PrimitiveArray<T>>,
+    for<'a> T: Scalar<RefType<'a> = T>,
+{
     type Array = PrimitiveArray<T>;
 
     fn with_capacity(capacity: usize) -> Self {
