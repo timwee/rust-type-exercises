@@ -4,5 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+anyhow = "1.0.89"
 bitvec = "1.0.1"
+cargo-expand = "1.0.90"
+thiserror = "1.0.64"
 

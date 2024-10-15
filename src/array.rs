@@ -1,24 +1,12 @@
+mod impls;
 mod iterator;
 mod primitive_array;
 mod string_array;
+use crate::scalar::{Scalar, ScalarRef};
+use crate::TypeMismatch;
 pub use iterator::*;
 pub use primitive_array::*;
 pub use string_array::*;
-
-use crate::scalar::{Scalar, ScalarRef};
-
-/// Encapsules all variants of array in this library.
-pub enum ArrayImpl {
-    Int32(I32Array),
-    Float32(F32Array),
-    String(StringArray),
-}
-
-pub enum ArrayBuilderImpl {
-    Int32(I32ArrayBuilder),
-    Float32(F32ArrayBuilder),
-    String(StringArrayBuilder),
-}
 
 // [`Array`] is a collection of data of the same type.
 // The where clause is used to ensure that the owned item can be converted to the reference item.
@@ -82,55 +70,26 @@ pub trait ArrayBuilder {
     fn finish(self) -> Self::Array;
 }
 
-impl TryFrom<ArrayImpl> for I32Array {
-    type Error = ();
-
-    fn try_from(array: ArrayImpl) -> Result<Self, Self::Error> {
-        match array {
-            ArrayImpl::Int32(array) => Ok(array),
-            _ => Err(()),
-        }
-    }
+/// Encapsules all variants of array in this library.
+pub enum ArrayImpl {
+    Int16(I16Array),
+    Int32(I32Array),
+    Int64(I64Array),
+    Float32(F32Array),
+    Float64(F64Array),
+    Bool(BoolArray),
+    String(StringArray),
 }
 
-impl From<I32Array> for ArrayImpl {
-    fn from(array: I32Array) -> Self {
-        ArrayImpl::Int32(array)
-    }
-}
-
-impl TryFrom<ArrayImpl> for F32Array {
-    type Error = ();
-
-    fn try_from(array: ArrayImpl) -> Result<Self, Self::Error> {
-        match array {
-            ArrayImpl::Float32(array) => Ok(array),
-            _ => Err(()),
-        }
-    }
-}
-
-impl From<F32Array> for ArrayImpl {
-    fn from(array: F32Array) -> Self {
-        ArrayImpl::Float32(array)
-    }
-}
-
-impl TryFrom<ArrayImpl> for StringArray {
-    type Error = ();
-
-    fn try_from(array: ArrayImpl) -> Result<Self, Self::Error> {
-        match array {
-            ArrayImpl::String(array) => Ok(array),
-            _ => Err(()),
-        }
-    }
-}
-
-impl From<StringArray> for ArrayImpl {
-    fn from(array: StringArray) -> Self {
-        ArrayImpl::String(array)
-    }
+/// Encapsules all variants of array builders in this library.
+pub enum ArrayBuilderImpl {
+    Int16(I16ArrayBuilder),
+    Int32(I32ArrayBuilder),
+    Int64(I64ArrayBuilder),
+    Float32(F32ArrayBuilder),
+    Float64(F64ArrayBuilder),
+    Bool(BoolArrayBuilder),
+    String(StringArrayBuilder),
 }
 
 #[cfg(test)]
@@ -187,7 +146,7 @@ mod tests {
         builder.finish()
     }
 
-    fn add_i32_wrapper(i1: ArrayImpl, i2: ArrayImpl) -> Result<ArrayImpl, ()> {
+    fn add_i32_wrapper(i1: ArrayImpl, i2: ArrayImpl) -> Result<ArrayImpl, TypeMismatch> {
         Ok(add_i32_vec(i1.try_into()?, i2.try_into()?).into())
     }
 

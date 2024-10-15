@@ -1,16 +1,26 @@
-use crate::array::{Array, F32Array, I32Array, StringArray};
+mod impls;
+
+use crate::array::Array;
 
 /// Encapsules all variants of [`Scalar`]
 pub enum ScalarImpl {
+    Int16(i16),
     Int32(i32),
+    Int64(i64),
     Float32(f32),
+    Float64(f64),
+    Bool(bool),
     String(String),
 }
 
 /// Encapsules all variants of [`ScalarRef`]
 pub enum ScalarRefImpl<'a> {
+    Int16(i16),
     Int32(i32),
+    Int64(i64),
     Float32(f32),
+    Float64(f64),
+    Bool(bool),
     String(&'a str),
 }
 
@@ -30,156 +40,6 @@ pub trait ScalarRef<'a>:
     type ScalarType: Scalar<RefType<'a> = Self>;
 
     fn to_owned_scalar(&self) -> Self::ScalarType;
-}
-
-impl Scalar for i32 {
-    type ArrayType = I32Array;
-    type RefType<'a> = i32;
-
-    fn as_scalar_ref(&self) -> Self::RefType<'_> {
-        *self
-    }
-}
-
-impl<'a> ScalarRef<'a> for i32 {
-    type ArrayType = I32Array;
-    type ScalarType = i32;
-
-    fn to_owned_scalar(&self) -> Self::ScalarType {
-        *self
-    }
-}
-
-impl TryFrom<ScalarImpl> for i32 {
-    type Error = ();
-    fn try_from(value: ScalarImpl) -> Result<Self, Self::Error> {
-        match value {
-            ScalarImpl::Int32(v) => Ok(v),
-            _ => Err(()),
-        }
-    }
-}
-
-impl From<i32> for ScalarImpl {
-    fn from(value: i32) -> Self {
-        ScalarImpl::Int32(value)
-    }
-}
-
-impl TryFrom<ScalarRefImpl<'_>> for i32 {
-    type Error = ();
-    fn try_from(value: ScalarRefImpl<'_>) -> Result<Self, Self::Error> {
-        match value {
-            ScalarRefImpl::Int32(v) => Ok(v),
-            _ => Err(()),
-        }
-    }
-}
-
-impl From<i32> for ScalarRefImpl<'_> {
-    fn from(value: i32) -> Self {
-        ScalarRefImpl::Int32(value)
-    }
-}
-
-impl Scalar for f32 {
-    type ArrayType = F32Array;
-    type RefType<'a> = f32;
-
-    fn as_scalar_ref(&self) -> Self::RefType<'_> {
-        *self
-    }
-}
-
-impl<'a> ScalarRef<'a> for f32 {
-    type ArrayType = F32Array;
-    type ScalarType = f32;
-
-    fn to_owned_scalar(&self) -> Self::ScalarType {
-        *self
-    }
-}
-
-impl TryFrom<ScalarImpl> for f32 {
-    type Error = ();
-    fn try_from(value: ScalarImpl) -> Result<Self, Self::Error> {
-        match value {
-            ScalarImpl::Float32(v) => Ok(v),
-            _ => Err(()),
-        }
-    }
-}
-
-impl From<f32> for ScalarImpl {
-    fn from(value: f32) -> Self {
-        ScalarImpl::Float32(value)
-    }
-}
-
-impl TryFrom<ScalarRefImpl<'_>> for f32 {
-    type Error = ();
-    fn try_from(value: ScalarRefImpl<'_>) -> Result<Self, Self::Error> {
-        match value {
-            ScalarRefImpl::Float32(v) => Ok(v),
-            _ => Err(()),
-        }
-    }
-}
-
-impl From<f32> for ScalarRefImpl<'_> {
-    fn from(value: f32) -> Self {
-        ScalarRefImpl::Float32(value)
-    }
-}
-
-impl Scalar for String {
-    type ArrayType = StringArray;
-    type RefType<'a> = &'a str;
-
-    fn as_scalar_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-
-impl<'a> ScalarRef<'a> for &'a str {
-    type ArrayType = StringArray;
-    type ScalarType = String;
-
-    fn to_owned_scalar(&self) -> Self::ScalarType {
-        self.to_string()
-    }
-}
-
-impl TryFrom<ScalarImpl> for String {
-    type Error = ();
-    fn try_from(value: ScalarImpl) -> Result<Self, Self::Error> {
-        match value {
-            ScalarImpl::String(v) => Ok(v),
-            _ => Err(()),
-        }
-    }
-}
-
-impl From<String> for ScalarImpl {
-    fn from(value: String) -> Self {
-        ScalarImpl::String(value)
-    }
-}
-
-impl<'a> TryFrom<ScalarRefImpl<'a>> for &'a str {
-    type Error = ();
-    fn try_from(value: ScalarRefImpl<'a>) -> Result<Self, Self::Error> {
-        match value {
-            ScalarRefImpl::String(v) => Ok(v),
-            _ => Err(()),
-        }
-    }
-}
-
-impl<'a> From<&'a str> for ScalarRefImpl<'a> {
-    fn from(value: &'a str) -> Self {
-        ScalarRefImpl::String(value)
-    }
 }
 
 #[cfg(test)]
