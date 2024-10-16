@@ -1,4 +1,5 @@
 pub mod array;
+pub mod expr;
 mod macros;
 pub mod scalar;
 

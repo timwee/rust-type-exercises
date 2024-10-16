@@ -70,3 +70,33 @@ fn build_array_repeated_owned<A: Array>(item: A::OwnedItem, len: usize) -> A {
 ## Motivation
 
 - Implement `TryFrom` and `From` for `ArrayImpl` and `ArrayBuilderImpl` so that we can convert between owned and referenced types easily.
+
+# BinaryExpression
+
+## Motivation
+
+Allow users to write function such as
+
+```rust
+pub fn str_contains(i1: &str, i2: &str) -> bool {
+    i1.contains(i2)
+}
+```
+
+And have it work for `StringArray` and `&str`
+
+```rust
+fn test_str_contains() {
+    let expr = BinaryExpression::<StringArray, StringArray, BoolArray, _>::new(str_contains);
+    let result = expr
+        .eval(
+            &StringArray::from_slice(&[Some("000"), Some("111"), None]).into(),
+            &StringArray::from_slice(&[Some("0"), Some("0"), None]).into(),
+        )
+        .unwrap();
+    check_array_eq::<BoolArray>(
+        (&result).try_into().unwrap(),
+        &[Some(true), Some(false), None],
+    );
+}
+```
